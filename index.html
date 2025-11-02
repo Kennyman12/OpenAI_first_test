@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Venture Architect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="hero-eyebrow">House of Innovation</p>
+          <h1>Venture Architect</h1>
+          <p class="hero-subtitle">
+            Shape your venture against the shifting sands. Design the business, refine the model,
+            and command decisive turns to outmaneuver rivals in the marketplace.
+          </p>
+        </div>
+        <div class="hero-badge">AI Co-Strategeist</div>
+      </header>
+
+      <section class="house-arena" aria-label="Market standings">
+        <div class="house-row" id="house-row"></div>
+      </section>
+
+      <main class="grid">
+        <section class="panel" id="setup-panel">
+          <header>
+            <h2>1. Forge Your Ambition</h2>
+            <p>Select the venture profile and ambition horizon.</p>
+          </header>
+          <form id="setup-form">
+            <label class="field">
+              <span>Business archetype</span>
+              <div class="chips" id="business-chips"></div>
+              <input
+                type="text"
+                id="business-type-input"
+                placeholder="e.g. eco-friendly apparel, AI consultancy"
+              />
+            </label>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Target annual revenue</span>
+                <input type="number" id="revenue-target" placeholder="500000" min="0" />
+              </label>
+              <label class="field">
+                <span>Time horizon (months)</span>
+                <input type="number" id="time-horizon" placeholder="18" min="1" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Milestone narrative</span>
+              <textarea
+                id="milestone-notes"
+                rows="3"
+                placeholder="Key markets, launch strategy, funding assumptions..."
+              ></textarea>
+            </label>
+
+            <label class="field">
+              <span>Describe your business model</span>
+              <textarea
+                id="business-model"
+                rows="5"
+                placeholder="Explain your customers, value proposition, distribution, and monetization."
+                required
+              ></textarea>
+            </label>
+
+            <button type="submit" class="cta">Conjure Reinforcement</button>
+          </form>
+        </section>
+
+        <section class="panel" id="reinforcement-panel">
+          <header>
+            <h2>2. AI Reinforcement</h2>
+            <p>Receive structured prompts to harden your model against the desert winds.</p>
+          </header>
+          <div class="reinforcement-output" id="reinforcement-output">
+            <p class="placeholder">Submit your blueprint to reveal AI guidance.</p>
+          </div>
+        </section>
+
+        <section class="panel" id="game-panel">
+          <header>
+            <h2>3. Strategic Turnplay</h2>
+            <p>Play decisive cards. Each turn pits you against emergent competitors.</p>
+          </header>
+
+          <div class="turn-info">
+            <div>Turn <span id="turn-number">-</span> / <span id="total-turns">-</span></div>
+            <button id="next-turn" class="cta secondary" disabled>Begin Campaign</button>
+          </div>
+
+          <div class="card-row" id="card-row"></div>
+          <div class="event-log" id="event-log"></div>
+        </section>
+
+        <section class="panel" id="dashboard-panel">
+          <header>
+            <h2>4. House Metrics</h2>
+            <p>Track how your empire fares across the dunes.</p>
+          </header>
+          <div class="metrics-visual">
+            <canvas id="metrics-chart" aria-label="Progression of key metrics" role="img"></canvas>
+            <div class="chart-legend" id="chart-legend"></div>
+          </div>
+          <div class="metrics-grid" id="metrics-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">Crafted for ambitious founders seeking desert-born resilience.</footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
