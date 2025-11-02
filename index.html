@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dune Venture Architect</title>
+    <title>Venture Architect</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,7 +17,7 @@
       <header class="hero">
         <div>
           <p class="hero-eyebrow">House of Innovation</p>
-          <h1>Dune Venture Architect</h1>
+          <h1>Venture Architect</h1>
           <p class="hero-subtitle">
             Shape your venture against the shifting sands. Design the business, refine the model,
             and command decisive turns to outmaneuver rivals in the marketplace.
@@ -25,6 +25,10 @@
         </div>
         <div class="hero-badge">AI Co-Strategeist</div>
       </header>
+
+      <section class="house-arena" aria-label="Market standings">
+        <div class="house-row" id="house-row"></div>
+      </section>
 
       <main class="grid">
         <section class="panel" id="setup-panel">
@@ -52,6 +56,74 @@
                 <span>Time horizon (months)</span>
                 <input type="number" id="time-horizon" placeholder="18" min="1" />
               </label>
+            </div>
+
+            <div class="identity-section">
+              <p class="identity-label">House identities</p>
+              <div class="identity-grid">
+                <fieldset class="identity-card">
+                  <legend>Your house</legend>
+                  <label class="field compact">
+                    <span>House name</span>
+                    <input
+                      type="text"
+                      id="founder-name"
+                      placeholder="e.g. Aurora Labs"
+                      value="Your House"
+                    />
+                  </label>
+                  <label class="field compact">
+                    <span>Logo URL</span>
+                    <input
+                      type="url"
+                      id="founder-logo"
+                      placeholder="https://example.com/your-logo.svg"
+                    />
+                  </label>
+                </fieldset>
+
+                <fieldset class="identity-card">
+                  <legend>Primary rival</legend>
+                  <label class="field compact">
+                    <span>Rival name</span>
+                    <input
+                      type="text"
+                      id="competitor-name"
+                      placeholder="e.g. Sable Consortium"
+                      value="Sable Consortium"
+                    />
+                  </label>
+                  <label class="field compact">
+                    <span>Logo URL</span>
+                    <input
+                      type="url"
+                      id="competitor-logo"
+                      placeholder="https://example.com/rival.svg"
+                    />
+                  </label>
+                </fieldset>
+
+                <fieldset class="identity-card">
+                  <legend>Wildcard disruptor</legend>
+                  <label class="field compact">
+                    <span>Disruptor name</span>
+                    <input
+                      type="text"
+                      id="disruptor-name"
+                      placeholder="e.g. Mirage League"
+                      value="Mirage League"
+                    />
+                  </label>
+                  <label class="field compact">
+                    <span>Logo URL</span>
+                    <input
+                      type="url"
+                      id="disruptor-logo"
+                      placeholder="https://example.com/disruptor.svg"
+                    />
+                  </label>
+                </fieldset>
+              </div>
             </div>
 
             <label class="field">
@@ -107,6 +179,10 @@
             <h2>4. House Metrics</h2>
             <p>Track how your empire fares across the dunes.</p>
           </header>
+          <div class="metrics-visual">
+            <canvas id="metrics-chart" aria-label="Progression of key metrics" role="img"></canvas>
+            <div class="chart-legend" id="chart-legend"></div>
+          </div>
           <div class="metrics-grid" id="metrics-grid"></div>
         </section>
       </main>
