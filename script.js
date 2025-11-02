@@ -53,9 +53,21 @@ const deck = [
 
 function createHouseState() {
   return {
-    founder: { id: "founder", name: "Your House", initials: "YH", score: 52 },
-    competitor: { id: "competitor", name: "Sable Consortium", initials: "SC", score: 52 },
-    disruptor: { id: "disruptor", name: "Mirage League", initials: "ML", score: 48 },
+    founder: { id: "founder", name: "Your House", initials: "YH", score: 52, logo: "" },
+    competitor: {
+      id: "competitor",
+      name: "Sable Consortium",
+      initials: "SC",
+      score: 52,
+      logo: "",
+    },
+    disruptor: {
+      id: "disruptor",
+      name: "Mirage League",
+      initials: "ML",
+      score: 48,
+      logo: "",
+    },
   };
 }
 
@@ -82,6 +94,13 @@ const state = {
     model: "",
     houseTitle: "",
     houseInitials: "",
+    founderLogo: "",
+    competitorName: "",
+    competitorInitials: "",
+    competitorLogo: "",
+    disruptorName: "",
+    disruptorInitials: "",
+    disruptorLogo: "",
   },
 };
 
@@ -98,6 +117,12 @@ const metricsGrid = document.getElementById("metrics-grid");
 const metricsChart = document.getElementById("metrics-chart");
 const chartLegend = document.getElementById("chart-legend");
 const houseRow = document.getElementById("house-row");
+const founderNameInput = document.getElementById("founder-name");
+const founderLogoInput = document.getElementById("founder-logo");
+const competitorNameInput = document.getElementById("competitor-name");
+const competitorLogoInput = document.getElementById("competitor-logo");
+const disruptorNameInput = document.getElementById("disruptor-name");
+const disruptorLogoInput = document.getElementById("disruptor-logo");
 
 const chartSeries = [
   { key: "revenue", label: "Revenue", color: "#f4c27f" },
@@ -461,25 +486,79 @@ function deriveInitials(name) {
     .slice(0, 2) || "YH";
 }
 
+function resolveHouseName(key, fallback) {
+  if (key === "founder") {
+    return state.ambition.houseTitle || fallback;
+  }
+  const property = `${key}Name`;
+  return state.ambition[property] || fallback;
+}
+
+function resolveHouseLogo(key) {
+  const property = `${key}Logo`;
+  if (Object.prototype.hasOwnProperty.call(state.ambition, property)) {
+    return state.ambition[property] || "";
+  }
+  return "";
+}
+
+function resolveHouseInitials(key, name, fallback) {
+  if (key === "founder") {
+    return state.ambition.houseInitials || fallback || deriveInitials(name);
+  }
+  const property = `${key}Initials`;
+  const stored = state.ambition[property];
+  if (stored) return stored;
+  if (name) return deriveInitials(name);
+  return fallback || "";
+}
+
 function renderHouses() {
   if (!houseRow) return;
   houseRow.innerHTML = "";
   const houses = Object.values(state.houses);
   const maxScore = houses.reduce((max, house) => Math.max(max, house.score || 0), 1);
   houses.forEach((house) => {
-    const scale = clamp(0.8 + (house.score / maxScore) * 0.5, 0.85, 1.35);
+    const scale = clamp(0.85 + (house.score / maxScore) * 0.45, 0.9, 1.45);
     const card = document.createElement("article");
     card.className = "house";
-    card.style.setProperty("--scale", scale.toFixed(2));
-    card.innerHTML = `
-      <div class="house-logo" data-label="${house.initials || ""}">
-        <span>${house.initials || ""}</span>
-      </div>
-      <div class="house-meta">
-        <p class="house-name">${house.name}</p>
-        <p class="house-score">${Math.round(house.score)}</p>
-      </div>
-    `;
+    card.style.setProperty("--house-scale", scale.toFixed(2));
+    if (house.score === maxScore) {
+      card.classList.add("is-leading");
+    }
+
+    const logoWrapper = document.createElement("div");
+    logoWrapper.className = "house-logo";
+    if (house.logo) {
+      const logoImg = document.createElement("img");
+      logoImg.src = house.logo;
+      logoImg.alt = `${house.name} logo`;
+      logoImg.addEventListener("error", () => {
+        logoImg.remove();
+        logoWrapper.textContent = house.initials || "";
+        logoWrapper.classList.add("fallback");
+      });
+      logoWrapper.appendChild(logoImg);
+    }
+
+    if (!house.logo) {
+      logoWrapper.textContent = house.initials || "";
+      logoWrapper.classList.add("fallback");
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "house-meta";
+
+    const name = document.createElement("p");
+    name.className = "house-name";
+    name.textContent = house.name;
+
+    const score = document.createElement("p");
+    score.className = "house-score";
+    score.textContent = Math.round(house.score);
+
+    meta.append(name, score);
+    card.append(logoWrapper, meta);
     houseRow.appendChild(card);
   });
 }
@@ -488,21 +567,20 @@ function updateHouseScores({ drift = false, reset = false } = {}) {
   if (!state.houses) {
     state.houses = createHouseState();
   }
+
+  const defaults = createHouseState();
+
   if (reset) {
-    const defaults = createHouseState();
     Object.keys(defaults).forEach((key) => {
       const baseline = defaults[key];
+      const name = resolveHouseName(key, baseline.name);
+      const initials = resolveHouseInitials(key, name, baseline.initials);
+      const logo = resolveHouseLogo(key);
       state.houses[key] = {
         ...baseline,
-        ...state.houses[key],
-        name:
-          key === "founder" && state.ambition.houseTitle
-            ? state.ambition.houseTitle
-            : baseline.name,
-        initials:
-          key === "founder" && state.ambition.houseInitials
-            ? state.ambition.houseInitials
-            : baseline.initials,
+        name,
+        initials,
+        logo,
         score: baseline.score,
       };
     });
@@ -515,20 +593,47 @@ function updateHouseScores({ drift = false, reset = false } = {}) {
   const competitorEdge = 55 + state.metrics.competitorPressure * 1.2;
   const disruptorBase = (state.houses.disruptor?.score || 48) + (drift ? Math.random() * 8 - 4 : Math.random() * 6 - 3);
 
+  const founderName = resolveHouseName("founder", defaults.founder.name);
+  const founderInitials = resolveHouseInitials("founder", founderName, defaults.founder.initials);
+  const founderLogo = resolveHouseLogo("founder");
+
+  const competitorName = resolveHouseName("competitor", defaults.competitor.name);
+  const competitorInitials = resolveHouseInitials(
+    "competitor",
+    competitorName,
+    defaults.competitor.initials
+  );
+  const competitorLogo = resolveHouseLogo("competitor");
+
+  const disruptorName = resolveHouseName("disruptor", defaults.disruptor.name);
+  const disruptorInitials = resolveHouseInitials(
+    "disruptor",
+    disruptorName,
+    defaults.disruptor.initials
+  );
+  const disruptorLogo = resolveHouseLogo("disruptor");
+
   state.houses.founder = {
     ...state.houses.founder,
-    name: state.ambition.houseTitle || state.houses.founder?.name || "Your House",
-    initials: state.ambition.houseInitials || state.houses.founder?.initials || "YH",
+    name: founderName,
+    initials: founderInitials,
+    logo: founderLogo,
     score: clamp(founderMomentum, 20, 120),
   };
 
   state.houses.competitor = {
     ...state.houses.competitor,
+    name: competitorName,
+    initials: competitorInitials,
+    logo: competitorLogo,
     score: clamp(competitorEdge, 25, 120),
   };
 
   state.houses.disruptor = {
     ...state.houses.disruptor,
+    name: disruptorName,
+    initials: disruptorInitials,
+    logo: disruptorLogo,
     score: clamp(disruptorBase + state.turn * 1.5, 30, 120),
   };
 
@@ -682,8 +787,27 @@ setupForm.addEventListener("submit", (event) => {
   }
 
   const primaryIdentity = state.ambition.businessTypes[0] || "Your House";
-  state.ambition.houseTitle = primaryIdentity;
-  state.ambition.houseInitials = deriveInitials(primaryIdentity);
+  const submittedFounderName = founderNameInput ? founderNameInput.value.trim() : "";
+  const submittedFounderLogo = founderLogoInput ? founderLogoInput.value.trim() : "";
+  const submittedCompetitorName = competitorNameInput ? competitorNameInput.value.trim() : "";
+  const submittedCompetitorLogo = competitorLogoInput ? competitorLogoInput.value.trim() : "";
+  const submittedDisruptorName = disruptorNameInput ? disruptorNameInput.value.trim() : "";
+  const submittedDisruptorLogo = disruptorLogoInput ? disruptorLogoInput.value.trim() : "";
+
+  const founderName = submittedFounderName || primaryIdentity;
+  state.ambition.houseTitle = founderName;
+  state.ambition.houseInitials = deriveInitials(founderName);
+  state.ambition.founderLogo = submittedFounderLogo || "";
+
+  const competitorName = submittedCompetitorName || "Sable Consortium";
+  state.ambition.competitorName = competitorName;
+  state.ambition.competitorInitials = deriveInitials(competitorName);
+  state.ambition.competitorLogo = submittedCompetitorLogo || "";
+
+  const disruptorName = submittedDisruptorName || "Mirage League";
+  state.ambition.disruptorName = disruptorName;
+  state.ambition.disruptorInitials = deriveInitials(disruptorName);
+  state.ambition.disruptorLogo = submittedDisruptorLogo || "";
 
   const blocks = analyzeBusinessModel(state.ambition.model);
   renderReinforcement(blocks);
